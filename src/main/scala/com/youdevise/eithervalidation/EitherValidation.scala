@@ -88,7 +88,7 @@ object EitherValidationImplicits {
   }
 
   implicit def eitherWithLeftNothing2eitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)
-  implicit def either2eitherValidation[E, X, Y](e: Either[E, X => Y])(implicit semiGroup: Semigroup[E]): EitherValidation[E, X, Y] = EitherValidation(e)
+  implicit def either2eitherValidation[E : Semigroup, X, Y](e: Either[E, X => Y]): EitherValidation[E, X, Y] = EitherValidation(e)
 
   implicit def TraversableSemigroup[E1, T[E2] <: TraversableLike[E2, T[E2]]](implicit cbf: CanBuildFrom[T[E1], E1, T[E1]]): Semigroup[T[E1]] = new Semigroup[T[E1]] {
     override def append(s1: T[E1], s2: => T[E1]): T[E1] = {
