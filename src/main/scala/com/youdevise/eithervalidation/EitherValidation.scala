@@ -54,11 +54,11 @@ import collection.generic.CanBuildFrom
  */
 
 /** Wraps an Either which has a TraversableLike type in the left, and a function in the right */
-case class EitherValidation[E : SemiGroup, X, Y](either1: Either[E, X => Y]) {
+case class EitherValidation[E : Semigroup, X, Y](either1: Either[E, X => Y]) {
   def apply(either2: Either[E, X]): Either[E, Y] = {
-    val semiGroup = implicitly[SemiGroup[E]]
+    val semigroup = implicitly[Semigroup[E]]
     (either1, either2) match {
-      case (Left(e1), Left(e2)) => Left(semiGroup.product(e1, e2))
+      case (Left(e1), Left(e2)) => Left(semigroup.append(e1, e2))
       case (Left(e1), Right(_)) => Left(e1)
       case (Right(_), Left(e2)) => Left(e2)
       case (Right(f), Right(x)) => Right(f(x))
@@ -76,22 +76,22 @@ case class EitherWithLeftNothingValidation[X, Y](either1: Either[Nothing, X => Y
   }
 }
 
-trait SemiGroup[E] {
-  def product(l: E, r: E): E
+trait Semigroup[E] {
+  def append(l: E, r: => E): E
 }
 
 /** Import these implicits into a scope to treat Eithers as validations */
 object EitherValidationImplicits {
 
-  implicit object StringAsSemiGroup extends SemiGroup[String] {
-    def product(l: String, r: String) = l + r
+  implicit object StringAssemiGroup extends Semigroup[String] {
+    def append(l: String, r: => String) = l + r
   }
 
   implicit def eitherWithLeftNothing2eitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)
-  implicit def either2eitherValidation[E, X, Y](e: Either[E, X => Y])(implicit semiGroup: SemiGroup[E]): EitherValidation[E, X, Y] = EitherValidation(e)
+  implicit def either2eitherValidation[E, X, Y](e: Either[E, X => Y])(implicit semiGroup: Semigroup[E]): EitherValidation[E, X, Y] = EitherValidation(e)
 
-  implicit def TraversableSemigroup[E1, T[E2] <: TraversableLike[E2, T[E2]]](implicit cbf: CanBuildFrom[T[E1], E1, T[E1]]): SemiGroup[T[E1]] = new SemiGroup[T[E1]] {
-    override def product(s1: T[E1], s2: T[E1]): T[E1] = {
+  implicit def TraversableSemigroup[E1, T[E2] <: TraversableLike[E2, T[E2]]](implicit cbf: CanBuildFrom[T[E1], E1, T[E1]]): Semigroup[T[E1]] = new Semigroup[T[E1]] {
+    override def append(s1: T[E1], s2: => T[E1]): T[E1] = {
       s1 ++ s2
     }
   }
