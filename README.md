@@ -5,6 +5,11 @@ like a Scalaz validation. It provides a mechanism for treating Either as an
 applicative functor by enriching it with an #apply method when the Right type
 is a function.
 
+The motivation is to be able to use the lessons from Tony Morris's paper
+[_Applicative Programming, Disjoint Unions, Semigroups and Non-breaking Error Handling_](http://applicative-errors-scala.googlecode.com/svn/artifacts/0.6/pdf/index.pdf),
+but using only the standard library's Either class, and using the #apply method
+for the applicative functor invocation.
+
 Please see EitherValidation and EitherValidationSpec for more details. This
 is a work in progress.
 
