@@ -66,7 +66,7 @@ case class EitherValidation[E : Semigroup, X, Y](either1: Either[E, X => Y]) {
   }
 }
 
-/** To support just saying `Right(f)(x)(y)`, wraps an Either with Nothing in the left, and a function in the right */
+/** To support just saying `Right(f)(x)(y)`, wraps an Either which has Nothing in the left, and a function in the right */
 case class EitherWithLeftNothingValidation[X, Y](either1: Either[Nothing, X => Y]) {
   def apply[E](either2: Either[E, X]): Either[E, Y] = {
     (either1, either2) match {
