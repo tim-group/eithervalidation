@@ -83,7 +83,7 @@ trait Semigroup[E] {
 /** Import these implicits into a scope to treat Eithers as validations */
 object EitherValidationImplicits {
 
-  implicit object StringAssemiGroup extends Semigroup[String] {
+  implicit object StringSemigroup extends Semigroup[String] {
     def append(l: String, r: => String) = l + r
   }
 
