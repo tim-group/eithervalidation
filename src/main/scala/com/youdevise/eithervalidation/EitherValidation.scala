@@ -51,12 +51,6 @@ import collection.generic.CanBuildFrom
  *   beyond, they have simplified some of the implicit typing for the
  *   collections to limit CanBuildFrom's appearance, as explained here:
  *     http://stackoverflow.com/questions/5410846/how-do-i-apply-the-enrich-my-library-pattern-to-scala-collections
- *
- * TODO:
- *   * It currently works if you explicitly call #apply, but applying directly fails
- *     to compile when there is more than one curried parameter. This is because
- *     scala interprets the second application as the implicit CanBuildFrom parameter
- *     below. Therefore, gotta find another way to do it.
  */
 
 /** Wraps an Either which has a TraversableLike type in the left, and a function in the right */
