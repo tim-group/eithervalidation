@@ -57,15 +57,12 @@ import collection.generic.CanBuildFrom
  *     to compile when there is more than one curried parameter. This is because
  *     scala interprets the second application as the implicit CanBuildFrom parameter
  *     below. Therefore, gotta find another way to do it.
- *
- *   * It currently works if the error type is List[_], but it is not compiling when
- *     String is used. Need to adjust the type bounds to pick up String, as I know that
- *     for example "a" ++ "b" == "ab", so it should be workable.
  */
 
 /** Wraps an Either which has a TraversableLike type in the left, and a function in the right */
-case class EitherValidation[E, X, Y](either1: Either[E, X => Y])(implicit semiGroup: SemiGroup[E]) {
+case class EitherValidation[E : SemiGroup, X, Y](either1: Either[E, X => Y]) {
   def apply(either2: Either[E, X]): Either[E, Y] = {
+    val semiGroup = implicitly[SemiGroup[E]]
     (either1, either2) match {
       case (Left(e1), Left(e2)) => Left(semiGroup.product(e1, e2))
       case (Left(e1), Right(_)) => Left(e1)
@@ -93,7 +90,7 @@ trait SemiGroup[E] {
 object EitherValidationImplicits {
 
   implicit object StringAsSemiGroup extends SemiGroup[String] {
-    def product(l: String, r: String) = l + "\n" + r
+    def product(l: String, r: String) = l + r
   }
 
   implicit def eitherWithLeftNothing2eitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)

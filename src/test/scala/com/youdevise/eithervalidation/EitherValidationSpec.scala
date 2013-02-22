@@ -17,33 +17,23 @@ class EitherValidationSpec extends Specification {
             val f = (add _).curried
             Right(f).apply(Left(List("a"))).apply(Left(List("b"))) must_== Left(List("a", "b"))
           } ^
-          // TODO: String isn't being picked up as TraversableLike
-//          "should return a left containing all failures in a string when both are lefts containing strings" ! {
-//            val f = (add _).curried
-//            Right(f).apply(Left("a")).apply(Left("b")) must_== Left("ab")
-//          } ^
+          "should return a left containing all failures in a string when both are lefts containing strings" ! {
+            val f = (add _).curried
+            Right(f).apply(Left("a")).apply(Left("b")) must_== Left("ab")
+          } ^
           bt ^
         "Person(age, name, postcode)" ^
           "should return a right containing fields when all validate" ! {
             val f = (Person.apply _).curried
-            Right(f)
-              .apply(validAge("42"))
-              .apply(validName("Arthur"))
-              .apply(validPostcode("1234")) must_== Right(Person(42, "Arthur", "1234"))
+            Right(f)(validAge("42"))(validName("Arthur"))(validPostcode("1234")) must_== Right(Person(42, "Arthur", "1234"))
           } ^
           "should return a left containing all failures" ! {
             val f = (Person.apply _).curried
-            Right(f)
-              .apply(validAge("150"))
-              .apply(validName("dude"))
-              .apply(validPostcode("a1")) must_== Left(List("Age must be less than 130", "Name must begin with a capital letter", "Postcode must be 4 digits"))
+            Right(f)(validAge("150"))(validName("dude"))(validPostcode("a1")) must_== Left(List("Age must be less than 130", "Name must begin with a capital letter", "Postcode must be 4 digits"))
           } ^
-          "should return a left containing all failures as a newline-separated string, when failures are strings" ! {
+          "should return a left containing all failures as a string, when failures are strings" ! {
             val f = (Person.apply _).curried
-            Right(f)
-              .apply(validAge2("150"))
-              .apply(validName2("dude"))
-              .apply(validPostcode2("a1")) must_== Left("Age must be less than 130\nName must begin with a capital letter\nPostcode must be 4 digits")
+            Right(f)(validAge2("150"))(validName2("dude"))(validPostcode2("a1")) must_== Left("Age must be less than 130\nName must begin with a capital letter\nPostcode must be 4 digits\n")
           } ^
     end
 
@@ -80,9 +70,9 @@ class EitherValidationSpec extends Specification {
     try {
       val n = s.toInt
       if (n < 0)
-        Left("Age must be greater than 0")
+        Left("Age must be greater than 0\n")
       else if (n > 130)
-        Left("Age must be less than 130")
+        Left("Age must be less than 130\n")
       else
         Right(n)
     } catch {
@@ -93,12 +83,12 @@ class EitherValidationSpec extends Specification {
     if (s.headOption exists (_.isUpper))
       Right(s)
     else
-      Left("Name must begin with a capital letter")
+      Left("Name must begin with a capital letter\n")
 
   def validPostcode2(s: String): Either[String, String] =
     if (s.length == 4 && s.forall(_.isDigit))
       Right(s)
     else
-      Left("Postcode must be 4 digits")
+      Left("Postcode must be 4 digits\n")
 }
 
