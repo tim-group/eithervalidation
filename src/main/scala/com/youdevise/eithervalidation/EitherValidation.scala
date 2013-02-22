@@ -1,6 +1,7 @@
 package com.youdevise.eithervalidation
 
 import collection.TraversableLike
+import collection.generic.CanBuildFrom
 
 /**
  * Enriches Either to do the business of an Applicative Functor: allow you to
@@ -46,11 +47,6 @@ import collection.TraversableLike
  * becomes natural and discoverable in the normal idioms of Scala. It's about
  * "applying", after all, so why not use #apply.
  *
- * Another difference is that do not add an implicit SemiGroup[A] to
- * supply the appending strategy for type A. Instead, we are requiring that
- * the error collection type be a TraversableLike, and thus provide the ++
- * method for appending.
- *
  * NOTE: This is written to support Scala back to at least 2.9.1. In 2.10 and
  *   beyond, they have simplified some of the implicit typing for the
  *   collections to limit CanBuildFrom's appearance, as explained here:
@@ -68,11 +64,10 @@ import collection.TraversableLike
  */
 
 /** Wraps an Either which has a TraversableLike type in the left, and a function in the right */
-case class EitherValidation[E, T[E] <: TraversableLike[E, T[E]], X, Y](either1: Either[T[E], X => Y]) {
-  import collection.generic.CanBuildFrom
-  def apply(either2: Either[T[E], X])(implicit cbf: CanBuildFrom[T[E], E, T[E]]): Either[T[E], Y] = {
+case class EitherValidation[E, X, Y](either1: Either[E, X => Y])(implicit semiGroup: SemiGroup[E]) {
+  def apply(either2: Either[E, X]): Either[E, Y] = {
     (either1, either2) match {
-      case (Left(e1), Left(e2)) => Left(e1 ++ e2)
+      case (Left(e1), Left(e2)) => Left(semiGroup.product(e1, e2))
       case (Left(e1), Right(_)) => Left(e1)
       case (Right(_), Left(e2)) => Left(e2)
       case (Right(f), Right(x)) => Right(f(x))
@@ -90,8 +85,23 @@ case class EitherWithLeftNothingValidation[X, Y](either1: Either[Nothing, X => Y
   }
 }
 
+trait SemiGroup[E] {
+  def product(l: E, r: E): E
+}
+
 /** Import these implicits into a scope to treat Eithers as validations */
 object EitherValidationImplicits {
-  implicit def eitherWithLeftNothing2eitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]) = EitherWithLeftNothingValidation(e)
-  implicit def either2eitherValidation[E, T[E] <: TraversableLike[E, T[E]], X, Y](e: Either[T[E], X => Y]) = EitherValidation(e)
+
+  implicit object StringAsSemiGroup extends SemiGroup[String] {
+    def product(l: String, r: String) = l + "\n" + r
+  }
+
+  implicit def eitherWithLeftNothing2eitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)
+  implicit def either2eitherValidation[E, X, Y](e: Either[E, X => Y])(implicit semiGroup: SemiGroup[E]): EitherValidation[E, X, Y] = EitherValidation(e)
+
+  implicit def TraversableSemigroup[E1, T[E2] <: TraversableLike[E2, T[E2]]](implicit cbf: CanBuildFrom[T[E1], E1, T[E1]]): SemiGroup[T[E1]] = new SemiGroup[T[E1]] {
+    override def product(s1: T[E1], s2: T[E1]): T[E1] = {
+      s1 ++ s2
+    }
+  }
 }
