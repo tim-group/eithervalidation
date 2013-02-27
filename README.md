@@ -115,11 +115,8 @@ How to Test w/ sbt and Edit w/ IntelliJ
 
 Status
 ======
-Last steps necessary before release v1.0.0:
-
-  * [x] README: Add example Play project dependency
-  * [x] CI: Add travis.yml config
-  * [ ] README: Document supported Scala versions
+As of v1.0.0, all tests pass on Scala versions back to 2.9.0-1. See [our Travis-CI config](.travis.yml)
+for all the versions that are currently tested.
 
 
 Contributing
