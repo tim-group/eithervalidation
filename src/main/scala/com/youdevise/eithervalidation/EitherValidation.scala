@@ -97,14 +97,9 @@ object EitherValidation {
 
   /** Import these implicits into a scope to treat qualified Eithers as EitherValidations */
   object Implicits {
-    /** We know how to append anything viewable as a TraversableLike */
-    implicit def TraversableLike2EitherValidationSemigroup[E1, T[E2] <: TraversableLike[E2, T[E2]]](implicit cbf: CanBuildFrom[T[E1], E1, T[E1]]): EitherValidation.Semigroup[T[E1]] = new EitherValidation.Semigroup[T[E1]] {
-      override def append(l: T[E1], r: => T[E1]): T[E1] = l ++ r
-    }
-
-    /** Only necessary because Scala doesn't realize that String is viewable as TraversableLike, see SI-3346 */
-    implicit object StringEitherValidationSemigroup extends EitherValidation.Semigroup[String] {
-      def append(l: String, r: => String) = l ++ r
+    /** We know how to append anything viewable as a TraversableLike, so that's our Semigroup */
+    implicit def TraversableLike2EitherValidationSemigroup[E, CC <% TraversableLike[E, CC] : ({ type L[A] = CanBuildFrom[A, E, A] })#L]: EitherValidation.Semigroup[CC] = new EitherValidation.Semigroup[CC] {
+      override def append(l: CC, r: => CC): CC = l ++ r
     }
 
     implicit def EitherWithLeftNothing2EitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)

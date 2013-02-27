@@ -17,6 +17,9 @@ class EitherValidationSpec extends Specification {
         "should return a left containing all failures in a string when both are lefts containing strings" ! {
           Right(curriedAdd).apply(Left("a")).apply(Left("b")) must_== Left("ab")
         } ^
+        "should return a left containing all failures in a string when both are lefts containing arrays" ! {
+          Right(curriedAdd).apply(Left(Array("a"))).apply(Left(Array("b"))).left.map(_.toList) must_== Left(Array("a", "b")).left.map(_.toList)
+        } ^
         bt ^
       "Person(age, name, postcode)" ^
         "should return a right containing fields when all validate" ! {
@@ -45,6 +48,9 @@ class EitherValidationSpec extends Specification {
         "should return a left containing all failures in a string when both are lefts containing strings" ! {
           Right(curriedAdd)(Left("a"))(Left("b")) must_== Left("ab")
         } ^
+        "should return a left containing all failures in a string when both are lefts containing arrays" ! {
+          Right(curriedAdd)(Left(Array("a")))(Left(Array("b"))).left.map(_.toList) must_== Left(Array("a", "b")).left.map(_.toList)
+        } ^
         bt ^
       "Person(age, name, postcode)" ^
         "should return a right containing fields when all validate" ! {
@@ -61,13 +67,12 @@ class EitherValidationSpec extends Specification {
         } ^
     end
 
+  // A simple function to lift into an Either
   def add(x: Int, y: Int): Int = x + y
 
-  val curriedAdd = (add _).curried
-
+  // Tony Morris's example Person with validations, see:
+  //   http://applicative-errors-scala.googlecode.com/svn/artifacts/0.6/pdf/index.pdf
   case class Person(age: Int, name: String, postcode: String)
-
-  val curriedPersonConstructor = (Person.apply _).curried
 
   def validAge(s: String): Either[List[String], Int] =
     try {
@@ -97,8 +102,13 @@ class EitherValidationSpec extends Specification {
   def mapLeftListOfStringToStringWithNewline[A](e: Either[List[String], A]): Either[String, A] =
     e.left.map(_.head + "\n")
 
+  // Adapt the above validations to return String instead of List[String]
   def validAge2(s: String): Either[String, Int] = mapLeftListOfStringToStringWithNewline(validAge(s))
   def validName2(s: String): Either[String, String] = mapLeftListOfStringToStringWithNewline(validName(s))
   def validPostcode2(s: String): Either[String, String] = mapLeftListOfStringToStringWithNewline(validPostcode(s))
+
+  // Curried versions of the functions we'll be lifting into Eithers
+  val curriedAdd = (add _).curried
+  val curriedPersonConstructor = (Person.apply _).curried
 }
 
