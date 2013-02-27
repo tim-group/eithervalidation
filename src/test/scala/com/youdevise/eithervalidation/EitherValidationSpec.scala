@@ -65,7 +65,38 @@ class EitherValidationSpec extends Specification {
           Right(curriedPersonConstructor)(validAge2("150"))(validName2("dude"))(validPostcode2("a1")) must_==
             Left("Age must be less than 130\nName must begin with a capital letter\nPostcode must be 4 digits\n")
         } ^
-    end
+        bt ^
+      bt ^
+    br ^
+    "Using a normal non-curried function and parentheses sugar for apply method" ^
+      "add(x, y)" ^
+        "should return a right containing sum when both are rights" ! {
+          Right(add _)(Right(2), Right(3)) must_== Right(5)
+        } ^
+        "should return a left containing all failures in a list when both are lefts containing lists" ! {
+          Right(add _)(Left(List("a")), Left(List("b"))) must_== Left(List("a", "b"))
+        } ^
+        "should return a left containing all failures in a string when both are lefts containing strings" ! {
+          Right(add _)(Left("a"), Left("b")) must_== Left("ab")
+        } ^
+        "should return a left containing all failures in a string when both are lefts containing arrays" ! {
+          Right(add _)(Left(Array("a")), Left(Array("b"))).left.map(_.toList) must_== Left(Array("a", "b")).left.map(_.toList)
+        } ^
+        bt ^
+      "Person(age, name, postcode)" ^
+        "should return a right containing fields when all validate" ! {
+          Right(Person)(validAge("42"), validName("Arthur"), validPostcode("1234")) must_==
+            Right(Person(42, "Arthur", "1234"))
+        } ^
+        "should return a left containing all failures" ! {
+          Right(Person)(validAge("150"), validName("dude"), validPostcode("a1")) must_==
+            Left(List("Age must be less than 130", "Name must begin with a capital letter", "Postcode must be 4 digits"))
+        } ^
+        "should return a left containing all failures as a string, when failures are strings" ! {
+          Right(Person)(validAge2("150"), validName2("dude"), validPostcode2("a1")) must_==
+            Left("Age must be less than 130\nName must begin with a capital letter\nPostcode must be 4 digits\n")
+        } ^
+  end
 
   // A simple function to lift into an Either
   def add(x: Int, y: Int): Int = x + y
