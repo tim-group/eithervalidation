@@ -102,7 +102,10 @@ object EitherValidation {
       override def append(l: CC, r: => CC): CC = l ++ r
     }
 
+    /** We know how to treat a `Right(f)`, with Nothing in the Left, as an EitherValidation */
     implicit def EitherWithLeftNothing2EitherWithLeftNothingValidation[E, X, Y](e: Either[Nothing, X => Y]): EitherWithLeftNothingValidation[X, Y] = EitherWithLeftNothingValidation(e)
+
+    /** We know how to treat an Either with Semigroup[E] in the Left, and a function in the Right, as an EitherValidation */
     implicit def Either2EitherValidation[E : EitherValidation.Semigroup, X, Y](e: Either[E, X => Y]): EitherValidation[E, X, Y] = EitherValidation(e)
   }
 }
