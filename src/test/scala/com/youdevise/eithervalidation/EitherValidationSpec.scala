@@ -118,6 +118,26 @@ class EitherValidationSpec extends Specification {
           (Right(f5)(Right(1), Right(2), Right(3), Right(4), Right(5)) must_== Right(List(5, 4, 3, 2, 1))) and
             (Right(f5)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5")) must_== Left("12345"))
         } ^
+        "should work for Function6" ! {
+          (Right(f6)(Right(1), Right(2), Right(3), Right(4), Right(5), Right(6)) must_== Right(List(6, 5, 4, 3, 2, 1))) and
+            (Right(f6)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5"), Left("6")) must_== Left("123456"))
+        } ^
+        "should work for Function7" ! {
+          (Right(f7)(Right(1), Right(2), Right(3), Right(4), Right(5), Right(6), Right(7)) must_== Right(List(7, 6, 5, 4, 3, 2, 1))) and
+            (Right(f7)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5"), Left("6"), Left("7")) must_== Left("1234567"))
+        } ^
+        "should work for Function8" ! {
+          (Right(f8)(Right(1), Right(2), Right(3), Right(4), Right(5), Right(6), Right(7), Right(8)) must_== Right(List(8, 7, 6, 5, 4, 3, 2, 1))) and
+            (Right(f8)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5"), Left("6"), Left("7"), Left("8")) must_== Left("12345678"))
+        } ^
+        "should work for Function9" ! {
+          (Right(f9)(Right(1), Right(2), Right(3), Right(4), Right(5), Right(6), Right(7), Right(8), Right(9)) must_== Right(List(9, 8, 7, 6, 5, 4, 3, 2, 1))) and
+            (Right(f9)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5"), Left("6"), Left("7"), Left("8"), Left("9")) must_== Left("123456789"))
+        } ^
+        "should work for Function10" ! {
+          (Right(f10)(Right(1), Right(2), Right(3), Right(4), Right(5), Right(6), Right(7), Right(8), Right(9), Right(10)) must_== Right(List(10, 9, 8, 7, 6, 5, 4, 3, 2, 1))) and
+            (Right(f10)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5"), Left("6"), Left("7"), Left("8"), Left("9"), Left("a")) must_== Left("123456789a"))
+        } ^
   end
 
   // A simple function to lift into an Either
@@ -170,5 +190,10 @@ class EitherValidationSpec extends Specification {
   val f3 = (i1: Int, i2: Int, i3: Int) => i3 :: f2(i1, i2)
   val f4 = (i1: Int, i2: Int, i3: Int, i4: Int) => i4 :: f3(i1, i2, i3)
   val f5 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int) => i5 :: f4(i1, i2, i3, i4)
+  val f6 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int, i6: Int) => i6 :: f5(i1, i2, i3, i4, i5)
+  val f7 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int, i6: Int, i7: Int) => i7 :: f6(i1, i2, i3, i4, i5, i6)
+  val f8 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int, i6: Int, i7: Int, i8: Int) => i8 :: f7(i1, i2, i3, i4, i5, i6, i7)
+  val f9 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int, i6: Int, i7: Int, i8: Int, i9: Int) => i9 :: f8(i1, i2, i3, i4, i5, i6, i7, i8)
+  val f10 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int, i6: Int, i7: Int, i8: Int, i9: Int, i10: Int) => i10 :: f9(i1, i2, i3, i4, i5, i6, i7, i8, i9)
 }
 
