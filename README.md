@@ -1,5 +1,7 @@
 EitherValidation
 ================
+[![Build Status](https://travis-ci.org/youdevise/eithervalidation.png)](https://travis-ci.org/youdevise/eithervalidation)
+
 This is a single file approach to treating Scala's standard library Either class
 like a Scalaz Validation. It provides a mechanism for treating Either as an
 applicative functor by enriching it with an #apply method when the Right type
@@ -116,7 +118,7 @@ Status
 Last steps necessary before release v1.0.0:
 
   * [x] README: Add example Play project dependency
-  * [ ] CI: Add travis.yml config
+  * [x] CI: Add travis.yml config
   * [ ] README: Document supported Scala versions
 
 
