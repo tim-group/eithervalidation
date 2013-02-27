@@ -88,8 +88,8 @@ import collection.generic.CanBuildFrom
  */
 
 /** Wraps an Either which has a type viewable as TraversableLike in the Left, and a Function1 in the Right */
-case class EitherValidation[Left : EitherValidation.Semigroup, A, B](e1: Either[Left, A => B]) {
-  def apply(e2: Either[Left, A]): Either[Left, B] = {
+case class EitherValidation[Left : EitherValidation.Semigroup, T1, R](e1: Either[Left, T1 => R]) {
+  def apply(e2: Either[Left, T1]): Either[Left, R] = {
     val semigroup = implicitly[EitherValidation.Semigroup[Left]]
     (e1, e2) match {
       case (Left(l1), Left(l2)) => Left(semigroup.append(l1, l2))
@@ -100,9 +100,9 @@ case class EitherValidation[Left : EitherValidation.Semigroup, A, B](e1: Either[
   }
 }
 
-/** To support just saying `Right(f)(x)(y)`, wraps an Either which has Nothing in the Left, and a Function1 in the Right */
-case class EitherWithLeftNothingValidation1[A, B](e1: Either[Nothing, A => B]) {
-  def apply[Left](e2: Either[Left, A]): Either[Left, B] = {
+/** To support just saying `Right(f)(a)(b)`, wraps an Either which has Nothing in the Left, and a Function1 in the Right */
+case class EitherWithLeftNothingValidation1[T1, R](e1: Either[Nothing, T1 => R]) {
+  def apply[Left](e2: Either[Left, T1]): Either[Left, R] = {
     (e1, e2) match {
       case (_,        Left(l2)) => Left(l2)
       case (Right(f), Right(x)) => Right(f(x))
@@ -110,31 +110,47 @@ case class EitherWithLeftNothingValidation1[A, B](e1: Either[Nothing, A => B]) {
   }
 }
 
-/** To support just saying `Right(f)(x, y)`, wraps an Either which has Nothing in the Left, and a Function2 in the Right */
-case class EitherWithLeftNothingValidation2[A, B, C](e1: Either[Nothing, (A, B) => C]) {
-  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, A], e3: Either[Left, B]): Either[Left, C] = {
+/** To support just saying `Right(f)(a, b)`, wraps an Either which has Nothing in the Left, and a Function2 in the Right */
+case class EitherWithLeftNothingValidation2[T1, T2, R](e1: Either[Nothing, (T1, T2) => R]) {
+  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, T1], e3: Either[Left, T2]): Either[Left, R] = {
     import EitherValidation.Implicits._
     e1.right.map(_.curried)(e2)(e3)
   }
 }
 
-/** To support just saying `Right(f)(x, y, z)`, wraps an Either which has Nothing in the Left, and a Function3 in the Right */
-case class EitherWithLeftNothingValidation3[A, B, C, D](e1: Either[Nothing, (A, B, C) => D]) {
-  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, A], e3: Either[Left, B], e4: Either[Left, C]): Either[Left, D] = {
+/** To support just saying `Right(f)(a, b, c)`, wraps an Either which has Nothing in the Left, and a Function3 in the Right */
+case class EitherWithLeftNothingValidation3[T1, T2, T3, R](e1: Either[Nothing, (T1, T2, T3) => R]) {
+  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, T1], e3: Either[Left, T2], e4: Either[Left, T3]): Either[Left, R] = {
     import EitherValidation.Implicits._
     e1.right.map(_.curried)(e2)(e3)(e4)
   }
 }
 
+/** To support just saying `Right(f)(a, b, c, d)`, wraps an Either which has Nothing in the Left, and a Function4 in the Right */
+case class EitherWithLeftNothingValidation4[T1, T2, T3, T4, R](e1: Either[Nothing, (T1, T2, T3, T4) => R]) {
+  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, T1], e3: Either[Left, T2], e4: Either[Left, T3], e5: Either[Left, T4]): Either[Left, R] = {
+    import EitherValidation.Implicits._
+    e1.right.map(_.curried)(e2)(e3)(e4)(e5)
+  }
+}
+
+/** To support just saying `Right(f)(a, b, c, d, e)`, wraps an Either which has Nothing in the Left, and a Function4 in the Right */
+case class EitherWithLeftNothingValidation5[T1, T2, T3, T5, T4, R](e1: Either[Nothing, (T1, T2, T3, T4, T5) => R]) {
+  def apply[Left : EitherValidation.Semigroup](e2: Either[Left, T1], e3: Either[Left, T2], e4: Either[Left, T3], e5: Either[Left, T4], e6: Either[Left, T5]): Either[Left, R] = {
+    import EitherValidation.Implicits._
+    e1.right.map(_.curried)(e2)(e3)(e4)(e5)(e6)
+  }
+}
+
 object EitherValidation {
-  /** A trait to describe anything that can be appended, for the Left of an EitherValidation */
-  trait Semigroup[E] {
-    def append(l: E, r: => E): E
-    def append(l: Nothing, r: => E): E = r
-    def append(l: E, r: Nothing): E = l
+  /** Anything that can be appended, for the Left of an EitherValidation */
+  trait Semigroup[A] {
+    def append(l: A, r: => A): A
+    def append(l: Nothing, r: => A): A = r
+    def append(l: A, r: Nothing): A = l
   }
 
-  /** Import these implicits into a scope to treat qualified Eithers as EitherValidations */
+  /** Import these implicits into a scope to treat a qualified Either as an EitherValidations */
   object Implicits {
     /** We know how to append anything viewable as a TraversableLike, so that's our Semigroup */
     implicit def TraversableLike2EitherValidationSemigroup[E, CC <% TraversableLike[E, CC] : ({ type L[A] = CanBuildFrom[A, E, A] })#L]: EitherValidation.Semigroup[CC] = new EitherValidation.Semigroup[CC] {
@@ -147,12 +163,16 @@ object EitherValidation {
     }
 
     /** We know how to treat a `Right(f)`, with Nothing in the Left, as an EitherValidation */
-    implicit def EitherWithLeftNothing1EitherWithLeftNothingValidation[A, B](e: Either[Nothing, A => B]): EitherWithLeftNothingValidation1[A, B] = EitherWithLeftNothingValidation1(e)
-    implicit def EitherWithLeftNothing2EitherWithLeftNothingValidation[A, B, C](e: Either[Nothing, (A, B) => C]): EitherWithLeftNothingValidation2[A, B, C] = EitherWithLeftNothingValidation2(e)
-    implicit def EitherWithLeftNothing3EitherWithLeftNothingValidation[A, B, C, D](e: Either[Nothing, (A, B, C) => D]): EitherWithLeftNothingValidation3[A, B, C, D] = EitherWithLeftNothingValidation3(e)
+    implicit def EitherWithLeftNothing1EitherWithLeftNothingValidation[T1, R](e: Either[Nothing, T1 => R]): EitherWithLeftNothingValidation1[T1, R] = EitherWithLeftNothingValidation1(e)
+
+    /** Support for more arity -- standard library goes up to Function22 */
+    implicit def EitherWithLeftNothing2EitherWithLeftNothingValidation[T1, T2, R](e: Either[Nothing, (T1, T2) => R]): EitherWithLeftNothingValidation2[T1, T2, R] = EitherWithLeftNothingValidation2(e)
+    implicit def EitherWithLeftNothing3EitherWithLeftNothingValidation[T1, T2, T3, R](e: Either[Nothing, (T1, T2, T3) => R]): EitherWithLeftNothingValidation3[T1, T2, T3, R] = EitherWithLeftNothingValidation3(e)
+    implicit def EitherWithLeftNothing4EitherWithLeftNothingValidation[T1, T2, T3, T4, R](e: Either[Nothing, (T1, T2, T3, T4) => R]): EitherWithLeftNothingValidation4[T1, T2, T3, T4, R] = EitherWithLeftNothingValidation4(e)
+    implicit def EitherWithLeftNothing4EitherWithLeftNothingValidation[T1, T2, T3, T4, T5, R](e: Either[Nothing, (T1, T2, T3, T4, T5) => R]): EitherWithLeftNothingValidation5[T1, T2, T3, T5, T4, R] = EitherWithLeftNothingValidation5(e)
 
     /** We know how to treat an Either with anything having a Semigroup typeclass instance in the Left,
       * and a Function1 in the Right, as an EitherValidation */
-    implicit def Either2EitherValidation[Left : EitherValidation.Semigroup, A, B](e: Either[Left, A => B]): EitherValidation[Left, A, B] = EitherValidation(e)
+    implicit def Either2EitherValidation[Left : EitherValidation.Semigroup, T1, T2](e: Either[Left, T1 => T2]): EitherValidation[Left, T1, T2] = EitherValidation(e)
   }
 }

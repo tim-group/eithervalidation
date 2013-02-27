@@ -96,6 +96,28 @@ class EitherValidationSpec extends Specification {
           Right(Person)(validAge2("150"), validName2("dude"), validPostcode2("a1")) must_==
             Left("Age must be less than 130\nName must begin with a capital letter\nPostcode must be 4 digits\n")
         } ^
+        bt ^
+      "Functions of increasing arity using apply method" ^
+        "should work for Function1" ! {
+          (Right(f1)(Right(1)) must_== Right(List(1))) and
+            (Right(f1)(Left("1")) must_== Left("1"))
+        } ^
+        "should work for Function2" ! {
+          (Right(f2)(Right(1), Right(2)) must_== Right(List(2, 1))) and
+            (Right(f2)(Left("1"), Left("2")) must_== Left("12"))
+        } ^
+        "should work for Function3" ! {
+          (Right(f3)(Right(1), Right(2), Right(3)) must_== Right(List(3, 2, 1))) and
+            (Right(f3)(Left("1"), Left("2"), Left("3")) must_== Left("123"))
+        } ^
+        "should work for Function4" ! {
+          (Right(f4)(Right(1), Right(2), Right(3), Right(4)) must_== Right(List(4, 3, 2, 1))) and
+            (Right(f4)(Left("1"), Left("2"), Left("3"), Left("4")) must_== Left("1234"))
+        } ^
+        "should work for Function5" ! {
+          (Right(f5)(Right(1), Right(2), Right(3), Right(4), Right(5)) must_== Right(List(5, 4, 3, 2, 1))) and
+            (Right(f5)(Left("1"), Left("2"), Left("3"), Left("4"), Left("5")) must_== Left("12345"))
+        } ^
   end
 
   // A simple function to lift into an Either
@@ -138,8 +160,15 @@ class EitherValidationSpec extends Specification {
   def validName2(s: String): Either[String, String] = mapLeftListOfStringToStringWithNewline(validName(s))
   def validPostcode2(s: String): Either[String, String] = mapLeftListOfStringToStringWithNewline(validPostcode(s))
 
-  // Curried versions of the functions we'll be lifting into Eithers
+  // Curried versions of the functions we'll be lifting into an Either
   val curriedAdd = (add _).curried
   val curriedPersonConstructor = (Person.apply _).curried
+
+  // Simple functions to return int params in reverse order, to test #apply with each supported arity
+  val f1 = (i1: Int) => i1 :: Nil
+  val f2 = (i1: Int, i2: Int) => i2 :: f1(i1)
+  val f3 = (i1: Int, i2: Int, i3: Int) => i3 :: f2(i1, i2)
+  val f4 = (i1: Int, i2: Int, i3: Int, i4: Int) => i4 :: f3(i1, i2, i3)
+  val f5 = (i1: Int, i2: Int, i3: Int, i4: Int, i5: Int) => i5 :: f4(i1, i2, i3, i4)
 }
 
