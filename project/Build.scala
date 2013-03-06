@@ -25,4 +25,8 @@ object EitherValidationBuild extends Build {
       )
     }
   }
+
+  def scalaCompilerDependency(scalaVersion: String) = {
+    Seq("org.scala-lang" % "scala-compiler" % scalaVersion % "test")
+  }
 }

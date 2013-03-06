@@ -2,6 +2,7 @@ package com.youdevise.eithervalidation
 
 import collection.TraversableLike
 import collection.generic.CanBuildFrom
+import annotation.implicitNotFound
 
 /**
  * Enriches Either to do the business of an Applicative Functor: allow you to
@@ -187,6 +188,7 @@ case class EitherWithLeftNothingValidation10[T1, T2, T3, T4, T5, T6, T7, T8, T9,
 
 object EitherValidation {
   /** Anything that can be appended, for the Left of an EitherValidation */
+  @implicitNotFound(msg = "The applied Left must be a Traversable like List or convertible to a Traversable like String. You tried to apply a Left[${A}]")
   trait Semigroup[A] {
     def append(l: A, r: => A): A
     def append(l: Nothing, r: => A): A = r
