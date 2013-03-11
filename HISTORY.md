@@ -1,6 +1,10 @@
 Release History
 ===============
 
+## [v1.0.1 (Mar 11, 2013)](http://github.com/youdevise/eithervalidation/compare/v1.0.0...v1.0.1)
+
+  * Improve compiler error message (Thanks @rjsvaljean)
+
 ## [v1.0.0 (Feb 27, 2013)](http://github.com/youdevise/eithervalidation/compare/v0.1.0...v1.0.0)
 
   * Reduce need for typeclass to absolute minimum and document same
