@@ -12,7 +12,7 @@ class CompileErrorsSpec extends Specification {
     import scala.tools.nsc.interpreter.{IMain, Results}
 
     private val settings = new Settings
-    val loader = manifest[EitherValidation$].erasure.getClassLoader
+    val loader = classOf[EitherValidation[List[Int], Nothing, Nothing]].getClassLoader
     settings.classpath.value = Source.fromURL(loader.getResource("app.class.path")).mkString
     settings.bootclasspath.append(Source.fromURL(loader.getResource("boot.class.path")).mkString)
     settings.deprecation.value = true // enable detailed deprecation warnings
