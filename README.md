@@ -53,13 +53,13 @@ def main(args: Array[String]) {
 }
 ```
 
-How to Add EitherValidation as a Dependency to your Play 2.x Project
+How to add as a dependency to your Play 2.x Project
 =====================================================================
 To add this library to your Play 2.x project, you can follow
 [these instructions](https://github.com/playframework/Play20/wiki/SBTDependencies)
 to add a dependency directly on a tagged version in this git repository.
 
-For example, to add a dependency on EitherValidations v1.0.0 to a Play project:
+For example, to add a dependency on EitherValidations v1.0.1 to a Play project:
 
 ```scala
 // project/Build.scala
@@ -77,7 +77,7 @@ object ApplicationBuild extends Build {
   )
 
   val gitDependencies: Seq[ClasspathDep[ProjectReference]] = Seq(
-    RootProject(uri("git://github.com/youdevise/eithervalidation.git#v1.0.0"))
+    RootProject(uri("git://github.com/youdevise/eithervalidation.git#v1.0.1"))
   )
 
   // ...
@@ -115,8 +115,8 @@ How to Test w/ sbt and Edit w/ IntelliJ
 
 Status
 ======
-As of v1.0.0, all tests pass on Scala versions back to 2.9.0-1. See [our Travis-CI config](.travis.yml)
-for all the versions that are currently tested.
+All tests are passing on Scala versions back to 2.9.0-1. 
+See [our Travis-CI config](.travis.yml) for all the versions that are currently tested.
 
 
 Contributing
