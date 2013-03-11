@@ -8,12 +8,11 @@ class CompileErrorsSpec extends Specification {
   class Compiler {
     import java.io.{PrintWriter, StringWriter}
     import scala.io.Source
-    import scala.tools.nsc.{Global, Settings}
+    import scala.tools.nsc.Settings
     import scala.tools.nsc.interpreter.{IMain, Results}
-    import scala.tools.nsc.reporters.Reporter
 
     private val settings = new Settings
-    val loader = manifest[EitherValidation$].erasure.getClassLoader
+    val loader = classOf[EitherValidation[List[Int], Nothing, Nothing]].getClassLoader
     settings.classpath.value = Source.fromURL(loader.getResource("app.class.path")).mkString
     settings.bootclasspath.append(Source.fromURL(loader.getResource("boot.class.path")).mkString)
     settings.deprecation.value = true // enable detailed deprecation warnings
@@ -22,13 +21,7 @@ class CompileErrorsSpec extends Specification {
 
     val stringWriter = new StringWriter()
 
-    // This is deprecated in 2.9.x, but we need to use it for compatibility with 2.8.x
-    private val interpreter = new IMain(settings, new PrintWriter(stringWriter)) {
-      override protected def newCompiler(settings: Settings, reporter: Reporter) = {
-        settings.outputDirs setSingleOutput virtualDirectory
-        new Global(settings, reporter)
-      }
-    }
+    private val interpreter = new IMain(settings, new PrintWriter(stringWriter))
 
     def compile(code: String): Option[String] = {
       stringWriter.getBuffer.delete(0, stringWriter.getBuffer.length)
