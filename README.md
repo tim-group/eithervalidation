@@ -24,7 +24,7 @@ def main(args: Array[String]) {
     println("Need at least three arguments")
   else {
     // Notice the natural syntax to lift function into Either, and then apply it to Eithers
-    Right(Person)(validAge(args(0), validName(args(1)), validPostcode(args(2))) match {
+    Right(Person)(validAge(args(0)), validName(args(1)), validPostcode(args(2))) match {
       case Right(p) => println("We have a person: " + p)
       case Left(e) => e foreach println
     }
